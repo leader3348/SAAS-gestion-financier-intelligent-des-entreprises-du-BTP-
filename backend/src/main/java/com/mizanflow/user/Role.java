@@ -1,0 +1,2 @@
+package com.mizanflow.user;
+public enum Role { SUPER_ADMIN, COMPANY_ADMIN, PROJECT_MANAGER, ACCOUNTANT, FIELD_WORKER, CLIENT }

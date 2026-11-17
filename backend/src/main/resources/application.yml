@@ -1,0 +1,29 @@
+spring:
+  application.name: mizanflow
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mizanflow}
+    username: ${DB_USER:mizanflow}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+    properties.hibernate.jdbc.time_zone: UTC
+  flyway.enabled: true
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USER:}
+    password: ${MAIL_PASSWORD:}
+server:
+  error.include-message: never
+  error.include-stacktrace: never
+management.endpoints.web.exposure.include: health,info
+mizanflow:
+  jwt:
+    secret: ${JWT_SECRET}          # >= 32 caractères, OBLIGATOIRE (aucune valeur par défaut)
+    access-ttl-minutes: 15
+    refresh-ttl-days: 14
+  auth.refresh-cookie-secure: ${REFRESH_COOKIE_SECURE:true}
+  cors.allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+  trial-days: ${TRIAL_DAYS:14}
+  rate-limit.auth-per-minute: 10

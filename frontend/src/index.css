@@ -1,0 +1,26 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+@layer base {
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  body { @apply min-h-screen bg-surface text-slate-900 font-sans antialiased; }
+  button, input, select, textarea { font: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    @apply outline-none ring-2 ring-brand/40 ring-offset-2;
+  }
+  ::selection { @apply bg-brand/15 text-navy-900; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+.btn { @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50; }
+.btn-primary { @apply btn bg-brand text-white shadow-sm hover:bg-brand-600 hover:shadow-md active:scale-[.98]; }
+.btn-ghost { @apply btn border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50; }
+.btn-danger { @apply btn bg-danger text-white shadow-sm hover:bg-red-700; }
+.btn-lg { @apply min-h-12 rounded-2xl px-6 py-3 text-base; }
+.input { @apply min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10; }
+.card { @apply rounded-2xl border border-slate-200/80 bg-white p-5 shadow-soft; }
+.label { @apply mb-1.5 block text-sm font-medium text-slate-700; }
+.err { @apply mt-1 text-xs font-medium text-danger; }
+.hero-bg { background: radial-gradient(55% 60% at 85% 10%, rgba(37,99,235,.25), transparent 70%), linear-gradient(125deg, #0A1322, #14233B 60%, #10284b); }
+.grid-bg { background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 48px 48px; mask-image: radial-gradient(ellipse at top right, #000 20%, transparent 75%); }
+.gradient-text { @apply bg-gradient-to-r from-blue-300 via-white to-cyan-200 bg-clip-text text-transparent; }
+.glass { @apply border-b border-white/10 bg-navy-900/80 backdrop-blur-xl; }
+th { @apply font-semibold; }
+tbody tr { @apply transition-colors hover:bg-slate-50/70; }

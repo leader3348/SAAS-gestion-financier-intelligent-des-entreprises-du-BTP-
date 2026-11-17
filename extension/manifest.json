@@ -1,0 +1,7 @@
+{ "manifest_version": 3, "name": "MizanFlow — Saisie rapide", "version": "0.1.0", "minimum_chrome_version": "116",
+  "description": "Saisissez vos prestations de chantier, validez-les et suivez vos indicateurs MizanFlow depuis le navigateur.",
+  "action": { "default_popup": "popup.html", "default_title": "MizanFlow" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "options_page": "options.html", "permissions": ["storage", "alarms"],
+  "host_permissions": ["http://localhost:8080/*"], "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" } }

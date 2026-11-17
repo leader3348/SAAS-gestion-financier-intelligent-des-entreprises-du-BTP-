@@ -1,0 +1,24 @@
+import { useState } from 'react'; import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'; import { CheckCircle2 } from 'lucide-react'
+import { api, errMsg } from '../lib/api'; import { mad } from '../lib/format'; import { ErrorBox, Field, Modal, Spinner } from '../components/ui'
+type Plan = { code: string; name: string; priceMonthly: number; priceYearly: number; maxUsers: number; maxActiveProjects: number }
+type B = { subscription: { planCode: string; status: string; billingCycle: string; trialEndsAt?: string; periodEnd?: string; usable: boolean; pendingRequest: boolean }; plans: Plan[]; usage: { users: number; activeProjects: number } }
+const Bar = ({ label, v, max }: { label: string; v: number; max: number }) => <div><div className="mb-1 flex justify-between text-xs text-slate-600"><span>{label}</span><span>{v} / {max}</span></div>
+  <div className="h-2 rounded-full bg-slate-100"><div className={`h-2 rounded-full ${v >= max ? 'bg-danger' : 'bg-brand'}`} style={{ width: `${Math.min(100, (v / max) * 100)}%` }} /></div></div>
+export default function Billing() {
+  const qc = useQueryClient(); const [yearly, setYearly] = useState(false); const [pick, setPick] = useState<Plan | null>(null); const [proof, setProof] = useState(''); const [err, setErr] = useState('')
+  const { data, isLoading } = useQuery({ queryKey: ['billing'], queryFn: async () => (await api.get<B>('/billing')).data })
+  const req = useMutation({ mutationFn: () => api.post('/billing/requests', { planCode: pick!.code, billingCycle: yearly ? 'YEARLY' : 'MONTHLY', proofRef: proof }), onSuccess: () => { qc.invalidateQueries({ queryKey: ['billing'] }); setPick(null); setProof(''); setErr('') }, onError: e => setErr(errMsg(e)) })
+  if (isLoading || !data) return <Spinner />; const cur = data.plans.find(p => p.code === data.subscription.planCode); const s = data.subscription
+  return <div className="space-y-6"><h1 className="text-2xl font-semibold">Abonnement</h1>
+    <div className="card grid gap-6 md:grid-cols-2"><div><div className="text-sm text-slate-500">Plan actuel</div><div className="text-2xl font-semibold">{cur?.name} <span className="rounded-full bg-blue-50 px-2 py-0.5 align-middle text-xs text-brand">{s.status === 'TRIAL' ? 'Essai' : s.status}</span></div>
+      <p className="mt-1 text-sm text-slate-600">{s.status === 'TRIAL' ? `Fin d'essai : ${s.trialEndsAt?.slice(0, 10)}` : `Valide jusqu'au ${s.periodEnd?.slice(0, 10) ?? '—'}`}</p>
+      {s.pendingRequest && <p className="mt-3 rounded-lg bg-amber-50 p-2 text-sm text-amber-800">Demande en cours de validation par notre équipe.</p>}</div>
+      {cur && <div className="space-y-3"><Bar label="Utilisateurs" v={data.usage.users} max={cur.maxUsers} /><Bar label="Projets actifs" v={data.usage.activeProjects} max={cur.maxActiveProjects} /></div>}</div>
+    <div className="flex w-fit rounded-full border border-slate-200 bg-white p-1 text-sm">{[['Mensuel', false], ['Annuel', true]].map(([l, v]) => <button key={String(l)} onClick={() => setYearly(v as boolean)} className={`rounded-full px-4 py-1.5 ${yearly === v ? 'bg-navy text-white' : 'text-slate-600'}`}>{l}</button>)}</div>
+    <div className="grid gap-4 md:grid-cols-3">{data.plans.map(p => <div key={p.code} className={`card ${p.code === s.planCode ? 'ring-2 ring-brand/30' : ''}`}><h3 className="font-semibold">{p.name}</h3><div className="my-2 text-3xl font-bold">{mad(yearly ? p.priceYearly : p.priceMonthly)}<span className="text-sm font-normal text-slate-500"> /{yearly ? 'an' : 'mois'}</span></div>
+      <ul className="mb-4 space-y-1.5 text-sm text-slate-600"><li className="flex gap-2"><CheckCircle2 size={16} className="text-ok" />{p.maxUsers} utilisateurs</li><li className="flex gap-2"><CheckCircle2 size={16} className="text-ok" />{p.maxActiveProjects} projets actifs</li></ul>
+      <button className={p.code === s.planCode && s.status === 'ACTIVE' ? 'btn-ghost w-full' : 'btn-primary w-full'} disabled={s.pendingRequest} onClick={() => setPick(p)}>{p.code === s.planCode && s.status === 'ACTIVE' ? 'Renouveler' : 'Choisir ce plan'}</button></div>)}</div>
+    {pick && <Modal title={`Activer ${pick.name} (${yearly ? 'annuel' : 'mensuel'})`} onClose={() => setPick(null)}><div className="space-y-3">{err && <ErrorBox text={err} />}
+      <p className="text-sm text-slate-600">Effectuez le virement du montant de <b>{mad(yearly ? pick.priceYearly : pick.priceMonthly)}</b>, puis indiquez la référence du virement. Notre équipe valide manuellement le justificatif avant activation.</p>
+      <Field label="Référence du virement / justificatif"><input className="input" value={proof} onChange={e => setProof(e.target.value)} /></Field><button className="btn-primary w-full" disabled={!proof.trim() || req.isPending} onClick={() => req.mutate()}>Envoyer la demande</button></div></Modal>}</div>
+}
