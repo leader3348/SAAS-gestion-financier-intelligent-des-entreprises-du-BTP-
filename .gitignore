@@ -3,6 +3,7 @@
 node_modules/
 dist/
 target/
+*.tsbuildinfo
 .idea/
 .vscode/
 uploads/
